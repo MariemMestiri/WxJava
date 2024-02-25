@@ -1,0 +1,33 @@
+name: WxJava:branch-2
+on:
+  pull_request :
+    branches:
+      branch-2
+  push:
+    branches:
+     - branch-2
+jobs:
+  build:
+    strategy:
+      matrix :
+        os: [ubuntu-latest]
+        java: [8]
+        java-distribution: [temurin]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Cache
+        uses: actions/cache@v3
+        with:
+          path : ~/.maven-
+          key: ${{ runner.os }}-maven
+      - name: build with maven-
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: ${{ matrix.java-distribution }}
+      - uses: actions/checkout@v4
+      - run: mvn clean package -DskipTests=true -Dcheckstyle.skip=true
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
